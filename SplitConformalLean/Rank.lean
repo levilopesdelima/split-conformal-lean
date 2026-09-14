@@ -112,4 +112,51 @@ theorem rank_le {n : ℕ} (r : Fin n → ℝ) (i : Fin n) :
 
   unfold rank
   omega
+
+/--
+The zero-based rank of an observation, regarded as an element of `Fin n`.
+
+Thus `rankIndex r i = rank r i - 1`.
+-/
+noncomputable def rankIndex {n : ℕ} (r : Fin n → ℝ) (i : Fin n) : Fin n :=
+  ⟨rank r i - 1, by
+    have hpos : 0 < rank r i := rank_pos r i
+    have hle : rank r i ≤ n := rank_le r i
+    omega⟩
+
+@[simp]
+theorem rankIndex_val {n : ℕ} (r : Fin n → ℝ) (i : Fin n) :
+    (rankIndex r i).val = rank r i - 1 := by
+  rfl
+
+/--
+The ordinary rank is one plus the zero-based rank.
+-/
+theorem rank_eq_rankIndex_add_one {n : ℕ} (r : Fin n → ℝ) (i : Fin n) :
+    rank r i = (rankIndex r i).val + 1 := by
+  rw [rankIndex_val]
+  have hpos : 0 < rank r i := rank_pos r i
+  omega
+
+/--
+If there are no ties, the zero-based rank map is injective.
+-/
+theorem rankIndex_injective_of_no_ties {n : ℕ} (r : Fin n → ℝ)
+    (hNoTies : NoTies r) :
+    Function.Injective (rankIndex r) := by
+  intro i j hij
+
+  apply rank_injective_of_no_ties r hNoTies
+
+  have hval :
+      (rankIndex r i).val = (rankIndex r j).val :=
+    congrArg (fun x : Fin n => x.val) hij
+
+  rw [rankIndex_val, rankIndex_val] at hval
+
+  have hi : 0 < rank r i := rank_pos r i
+  have hj : 0 < rank r j := rank_pos r j
+
+  omega
+
 end SplitConformalLean
