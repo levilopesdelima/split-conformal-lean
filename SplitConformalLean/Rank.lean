@@ -159,4 +159,23 @@ theorem rankIndex_injective_of_no_ties {n : ℕ} (r : Fin n → ℝ)
 
   omega
 
+ /--
+If there are no ties, the zero-based rank map is a bijection
+of `Fin n`.
+-/
+theorem rankIndex_bijective_of_no_ties {n : ℕ} (r : Fin n → ℝ)
+    (hNoTies : NoTies r) :
+    Function.Bijective (rankIndex r) := by
+  exact
+    (Nat.bijective_iff_injective_and_card (rankIndex r)).2
+      ⟨rankIndex_injective_of_no_ties r hNoTies, rfl⟩
+
+/--
+If there are no ties, every zero-based rank occurs.
+-/
+theorem rankIndex_surjective_of_no_ties {n : ℕ} (r : Fin n → ℝ)
+    (hNoTies : NoTies r) :
+    Function.Surjective (rankIndex r) := by
+  exact (rankIndex_bijective_of_no_ties r hNoTies).2
+
 end SplitConformalLean
