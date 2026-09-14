@@ -56,4 +56,25 @@ theorem rank_lt_of_lt {n : ℕ} (r : Fin n → ℝ) {i j : Fin n}
   unfold rank
   exact Nat.add_lt_add_left (Finset.card_lt_card hproper) 1
 
+/--
+If a finite family has no ties, then distinct indices have distinct ranks.
+Equivalently, the rank map is injective.
+-/
+theorem rank_injective_of_no_ties {n : ℕ} (r : Fin n → ℝ)
+    (hNoTies : NoTies r) :
+    Function.Injective (rank r) := by
+  intro i j hRank
+
+  rcases lt_trichotomy (r i) (r j) with hlt | heq | hgt
+
+  · have hRankLt : rank r i < rank r j :=
+      rank_lt_of_lt r hlt
+    exact (Nat.ne_of_lt hRankLt hRank).elim
+
+  · exact hNoTies heq
+
+  · have hRankLt : rank r j < rank r i :=
+      rank_lt_of_lt r hgt
+    exact (Nat.ne_of_lt hRankLt hRank.symm).elim
+
 end SplitConformalLean
