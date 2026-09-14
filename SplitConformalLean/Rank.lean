@@ -77,4 +77,39 @@ theorem rank_injective_of_no_ties {n : ℕ} (r : Fin n → ℝ)
       rank_lt_of_lt r hgt
     exact (Nat.ne_of_lt hRankLt hRank.symm).elim
 
+/--
+The rank of any observation in a family indexed by `Fin n`
+is at most `n`.
+-/
+theorem rank_le {n : ℕ} (r : Fin n → ℝ) (i : Fin n) :
+    rank r i ≤ n := by
+  classical
+
+  have hsub :
+      Finset.univ.filter (fun j => r j < r i) ⊆
+        (Finset.univ : Finset (Fin n)) := by
+    intro j hj
+    simp
+
+  have hnot :
+      ¬ (Finset.univ : Finset (Fin n)) ⊆
+        Finset.univ.filter (fun j => r j < r i) := by
+    intro hrev
+    have hi_univ : i ∈ (Finset.univ : Finset (Fin n)) := by
+      simp
+    have hi_filter := hrev hi_univ
+    simp only [Finset.mem_filter, Finset.mem_univ, true_and] at hi_filter
+    exact (lt_irrefl (r i)) hi_filter
+
+  have hproper :
+      Finset.univ.filter (fun j => r j < r i) ⊂
+        (Finset.univ : Finset (Fin n)) := by
+    exact Finset.ssubset_def.mpr ⟨hsub, hnot⟩
+
+  have hcard :
+      (Finset.univ.filter (fun j => r j < r i)).card < n := by
+    simpa using Finset.card_lt_card hproper
+
+  unfold rank
+  omega
 end SplitConformalLean
