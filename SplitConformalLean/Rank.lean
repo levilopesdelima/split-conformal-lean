@@ -178,4 +178,34 @@ theorem rankIndex_surjective_of_no_ties {n : ℕ} (r : Fin n → ℝ)
     Function.Surjective (rankIndex r) := by
   exact (rankIndex_bijective_of_no_ties r hNoTies).2
 
+/--
+If there are no ties, every rank from `1` to `n`
+is attained by exactly one observation.
+-/
+theorem exists_unique_rank {n : ℕ} (r : Fin n → ℝ)
+    (hNoTies : NoTies r) {k : ℕ}
+    (hk1 : 1 ≤ k) (hkn : k ≤ n) :
+    ∃! i : Fin n, rank r i = k := by
+  let q : Fin n := ⟨k - 1, by omega⟩
+
+  obtain ⟨i, hi⟩ :=
+    rankIndex_surjective_of_no_ties r hNoTies q
+
+  have hirank : rank r i = k := by
+    have hval : (rankIndex r i).val = k - 1 := by
+      have h :=
+        congrArg (fun x : Fin n => x.val) hi
+      simpa [q] using h
+
+    rw [rank_eq_rankIndex_add_one r i, hval]
+    omega
+
+  refine ⟨i, hirank, ?_⟩
+
+  intro j hj
+
+  apply rank_injective_of_no_ties r hNoTies
+
+  exact hj.trans hirank.symm
+
 end SplitConformalLean
